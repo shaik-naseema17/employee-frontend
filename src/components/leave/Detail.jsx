@@ -12,7 +12,7 @@ const Detail = () => {
     const fetchLeave = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/leave/detail/${id}`,
+          `https://employee-api1.vercel.app/api/leave/detail/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -35,7 +35,7 @@ const Detail = () => {
   const changeStatus = async (id, status) => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/leave/${id}`,
+        `https://employee-api1.vercel.app/api/leave/${id}`,
         { status },
         {
           headers: {
@@ -63,7 +63,7 @@ const Detail = () => {
               <img
                 src={
                   leave?.employeeId?.userId?.profileImage
-                    ? `http://localhost:5000/${leave.employeeId.userId.profileImage}`
+                    ? `https://employee-api1.vercel.app/${leave.employeeId.userId.profileImage}`
                     : 'https://via.placeholder.com/150' // Fallback image
                 }
                 alt={`${
