@@ -7,7 +7,7 @@ const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Always send cookies and auth headers
+    // Send credentials with every request
     axios.defaults.withCredentials = true;
 
     useEffect(() => {
@@ -20,23 +20,23 @@ const AuthProvider = ({ children }) => {
                 return;
             }
 
+            // Set the token in Axios headers
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
             try {
-                const response = await axios.get('https://employee-api1.vercel.app/api/auth/verify', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const response = await axios.get('https://employee-api1.vercel.app/api/auth/verify');
 
                 if (response.data.success) {
                     setUser(response.data.user);
                 } else {
+                    localStorage.removeItem('token');
+                    delete axios.defaults.headers.common['Authorization'];
                     setUser(null);
                 }
             } catch (error) {
-                console.error(
-                    'Error verifying user:',
-                    error?.response?.data?.error || error.message
-                );
+                console.error('Error verifying user:', error?.response?.data?.error || error.message);
+                localStorage.removeItem('token');
+                delete axios.defaults.headers.common['Authorization'];
                 setUser(null);
             } finally {
                 setLoading(false);
@@ -47,13 +47,18 @@ const AuthProvider = ({ children }) => {
     }, []);
 
     const login = (userData, token) => {
-        localStorage.setItem('token', token);
-        setUser(userData);
+        if (token && userData) {
+            localStorage.setItem('token', token);
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            setUser(userData);
+        }
     };
 
     const logout = () => {
         localStorage.removeItem('token');
+        delete axios.defaults.headers.common['Authorization'];
         setUser(null);
+        // Optional: window.location.href = '/login';
     };
 
     return (
